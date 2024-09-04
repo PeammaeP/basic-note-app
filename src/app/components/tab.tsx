@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import ApiResponseSchema from "../schema/apiResponse.dto";
+import TabComponentProps from "../schema/statusSchema.dto";
 
 const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
   const [selectedTab, setSelectedTab] = useState("TODO");
@@ -14,38 +15,29 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
     return tasks.filter((task) => task.status === status);
   };
 
+  const TabComponent: React.FC<TabComponentProps> = ({
+    selectedTab,
+    status,
+  }) => {
+    return (
+      <Tab
+        className={`rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none ${
+          selectedTab === "TODO" ? "bg-white/10" : "data-[hover]:bg-white/5"
+        }`}
+      >
+        {status}
+      </Tab>
+    );
+  };
+
   return (
     <div className="flex h-screen w-full justify-center pt-24 px-4">
       <div className="w-full max-w-md">
         <TabGroup onChange={handleTabChange}>
           <TabList className="flex gap-4">
-            <Tab
-              className={`rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none ${
-                selectedTab === "TODO"
-                  ? "bg-white/10"
-                  : "data-[hover]:bg-white/5"
-              }`}
-            >
-              TODO
-            </Tab>
-            <Tab
-              className={`rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none ${
-                selectedTab === "DOING"
-                  ? "bg-white/10"
-                  : "data-[hover]:bg-white/5"
-              }`}
-            >
-              DOING
-            </Tab>
-            <Tab
-              className={`rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none ${
-                selectedTab === "DONE"
-                  ? "bg-white/10"
-                  : "data-[hover]:bg-white/5"
-              }`}
-            >
-              DONE
-            </Tab>
+            <TabComponent selectedTab="TODO" status="TODO" />
+            <TabComponent selectedTab="DOING" status="DOING" />
+            <TabComponent selectedTab="DONE" status="DONE" />
           </TabList>
           <TabPanels className="mt-3">
             <TabPanel>
