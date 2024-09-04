@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { format } from "date-fns";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Task from "../schema/taskSchema.dto";
 import ApiResponseSchema from "../schema/apiResponse.dto";
@@ -43,7 +44,7 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
         <ul>
           {filterTasks(status).map(({ id, title, description, createdAt }) => {
             const date = new Date(createdAt); // Ensure createdAt is parsed as a Date object
-            const formattedDate = date.toLocaleDateString(); // Format the date
+            const formattedDate = format(date, "MMMM dd, yyyy"); // Format the date
 
             return (
               <li
