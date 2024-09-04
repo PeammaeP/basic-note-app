@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import ApiResponseSchema from "../schema/apiResponse.dto";
-import TabComponentProps from "../schema/statusSchema.dto";
+import TabComponentProps from "../schema/tabComponentProps.dto";
 
 const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
-  const [selectedTab, setSelectedTab] = useState("TODO");
+  const [selectedTab, setSelectedTab] = useState("");
 
   const handleTabChange = (index: number) => {
     const statuses = ["TODO", "DOING", "DONE"];
@@ -17,12 +17,13 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
 
   const TabComponent: React.FC<TabComponentProps> = ({
     selectedTab,
+    targetTab,
     status,
   }) => {
     return (
       <Tab
         className={`rounded-full py-1 px-3 text-sm/6 font-semibold text-white focus:outline-none ${
-          selectedTab === "TODO" ? "bg-white/10" : "data-[hover]:bg-white/5"
+          selectedTab === targetTab ? "bg-white/10" : "data-[hover]:bg-white/5"
         }`}
       >
         {status}
@@ -35,9 +36,21 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
       <div className="w-full max-w-md">
         <TabGroup onChange={handleTabChange}>
           <TabList className="flex gap-4">
-            <TabComponent selectedTab="TODO" status="TODO" />
-            <TabComponent selectedTab="DOING" status="DOING" />
-            <TabComponent selectedTab="DONE" status="DONE" />
+            <TabComponent
+              selectedTab={selectedTab}
+              targetTab="TODO"
+              status="TODO"
+            />
+            <TabComponent
+              selectedTab={selectedTab}
+              targetTab="DOING"
+              status="DOING"
+            />
+            <TabComponent
+              selectedTab={selectedTab}
+              targetTab="DONE"
+              status="DONE"
+            />
           </TabList>
           <TabPanels className="mt-3">
             <TabPanel>
