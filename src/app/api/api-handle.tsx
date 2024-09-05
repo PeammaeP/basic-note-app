@@ -28,7 +28,7 @@ export default function ApiHandling() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading... 📢</div>;
   }
 
   if (!data || data === undefined || data == null) {
