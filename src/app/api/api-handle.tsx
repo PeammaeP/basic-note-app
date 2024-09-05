@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import ApiResponseSchema from "../schema/apiResponse.dto";
-import TabStatus from "../components/tab";
+import TabStatusAndBlog from "../components/tab";
 
 const fetcher = (url: string): Promise<ApiResponseSchema> =>
   fetch(url).then((res) => res.json());
@@ -11,16 +11,17 @@ const fetcher = (url: string): Promise<ApiResponseSchema> =>
 export default function ApiHandling() {
   const searchParams = useSearchParams();
 
-  const noteStatus = searchParams.get("status") || "TODO";
-  const offsetNumber = searchParams.get("offset") || 1;
+  const noteStatus = searchParams.get("status") || "";
+  const offsetNumber = searchParams.get("offset") || 0;
   const limitNumber = searchParams.get("limit") || 10;
   const sortingByCondition = searchParams.get("sortBy") || "createdAt";
   const isAscending = searchParams.get("isAsc") || true;
 
-  const { data, error, isLoading } = useSWR<ApiResponseSchema>(
-    `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?status=${noteStatus}&offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`,
-    fetcher
-  );
+  const API = noteStatus
+    ? `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?status=${noteStatus}&offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`
+    : `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`;
+
+  const { data, error, isLoading } = useSWR<ApiResponseSchema>(API, fetcher);
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -37,12 +38,11 @@ export default function ApiHandling() {
 
   return (
     <div>
-      <TabStatus
+      <TabStatusAndBlog
         tasks={data.tasks}
         pageNumber={data.pageNumber}
         totalPages={data.totalPages}
       />
-      Hello World
     </div>
   );
 }
