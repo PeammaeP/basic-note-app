@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import ApiResponseSchema from "../schema/apiResponse.dto";
-import TabStatusAndBlog from "../components/tab-status";
+import TabStatusAndBlog from "../components/tabAndBlogHandling";
 
 const fetcher = (url: string): Promise<ApiResponseSchema> =>
   fetch(url).then((res) => res.json());
