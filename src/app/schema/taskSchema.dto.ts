@@ -2,8 +2,8 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  createdAt: Date;
-  status: string;
+  createdAt: string;
+  status: 'TODO' | 'DOING' | 'DONE'
 }
 
 export default Task;

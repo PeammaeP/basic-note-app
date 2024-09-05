@@ -5,22 +5,42 @@ import Task from "../schema/taskSchema.dto";
 import ApiResponseSchema from "../schema/apiResponse.dto";
 import TabComponentProps from "../schema/tabComponentProps.dto";
 
-const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
-  type TaskOnlyStatus = Omit<
-    Task,
-    "id" | "title" | "description" | "createdAt"
-  >;
-
-  const [selectedTab, setSelectedTab] = useState("");
+const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({ tasks }) => {
+  const [selectedTab, setSelectedTab] = useState("TODO");
 
   const handleTabChange = (index: number) => {
     const statuses = ["TODO", "DOING", "DONE"];
     setSelectedTab(statuses[index]);
   };
 
-  const filterTasks = (status: string) => {
-    return tasks.filter((task) => task.status === status);
+  const filteredTasks = () => {
+    if (!tasks || !Array.isArray(tasks)) {
+      return [];
+    }
+
+    if (selectedTab === "") {
+      return tasks;
+    }
+
+    return tasks.filter((task) => task.status && task.status === selectedTab);
   };
+
+  const groupBlogsByDateAfterGroupTasks = (filteredTask: Task[]) => {
+    return filteredTask.reduce((groups, task) => {
+      const date = format(new Date(task.createdAt), "MMMM dd, yyyy");
+
+      if (!groups[date]) {
+        groups[date] = [];
+        console.log("First Date Groups", groups[date], date);
+      }
+      groups[date].push(task);
+      console.log(task.status);
+
+      return groups;
+    }, {} as Record<string, Task[]>);
+  };
+
+  const groupedTasks = groupBlogsByDateAfterGroupTasks(filteredTasks());
 
   const TabComponent: React.FC<TabComponentProps> = ({
     selectedTab,
@@ -35,36 +55,6 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
       >
         {status}
       </Tab>
-    );
-  };
-
-  const FilterTabDisplayBlog: React.FC<TaskOnlyStatus> = ({ status }) => {
-    return (
-      <TabPanel>
-        <ul>
-          {filterTasks(status).map(({ id, title, description, createdAt }) => {
-            const date = new Date(createdAt); // Ensure createdAt is parsed as a Date object
-            const formattedDate = format(date, "MMMM dd, yyyy"); // Format the date
-
-            return (
-              <li
-                key={id}
-                className="relative rounded-md p-3 text-sm/6 transition hover:bg-white/5"
-              >
-                <a href="#" className="font-semibold text-white">
-                  <span className="absolute inset-0" />
-                  {title}
-                </a>
-                <ul className="flex gap-2 text-white/50" aria-hidden="true">
-                  <li>{formattedDate}</li>
-                  <li aria-hidden="true">&middot;</li>
-                  <li>{description}</li>
-                </ul>
-              </li>
-            );
-          })}
-        </ul>
-      </TabPanel>
     );
   };
 
@@ -90,9 +80,32 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
             />
           </TabList>
           <TabPanels className="mt-3">
-            <FilterTabDisplayBlog status={selectedTab} />
-            <FilterTabDisplayBlog status={selectedTab} />
-            <FilterTabDisplayBlog status={selectedTab} />
+            {Object.entries(groupedTasks).map(([date, tasksOnDate]) => (
+              <TabPanel key={date}>
+                <h1 className="text-white font-semibold mb-2">{date}</h1>
+                <ul>
+                  {tasksOnDate.map(({ id, title, description, createdAt }) => (
+                    <li
+                      key={id}
+                      className="relative rounded-md p-3 text-sm/6 transition hover:bg-white/5"
+                    >
+                      <a href="#" className="font-semibold text-white">
+                        <span className="absolute inset-0" />
+                        {title}
+                      </a>
+                      <ul
+                        className="flex gap-2 text-white/50"
+                        aria-hidden="true"
+                      >
+                        <li>{format(new Date(createdAt), "hh:mm a")}</li>
+                        <li aria-hidden="true">&middot;</li>
+                        <li>{description}</li>
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </TabPanel>
+            ))}
           </TabPanels>
         </TabGroup>
       </div>
@@ -100,4 +113,4 @@ const TabStatus: React.FC<ApiResponseSchema> = ({ tasks }) => {
   );
 };
 
-export default TabStatus;
+export default TabStatusAndBlog;
