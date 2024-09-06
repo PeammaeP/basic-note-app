@@ -5,6 +5,7 @@ import Task from "../schema/taskSchema.dto";
 import ApiResponseSchema from "../schema/apiResponse.dto";
 import TabComponent from "./tabComponent";
 import BlogComponent from "./blogComponent";
+import { v5 as uuidv5 } from "uuid";
 
 const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
   tasks,
@@ -18,6 +19,7 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
   const statuses = ["TODO", "DOING", "DONE"];
 
   const currentPageRef = useRef(pageNumber);
+  const NAMESPACE = "c62d3bcf-02ae-446f-a24d-b2fee34c983a";
 
   // implement feature loading more task
   const LoadMoreTasks = useCallback(async () => {
@@ -128,15 +130,26 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
                   </p>
                 ) : (
                   Object.entries(groupTasksByDate(filteredTasks(status))).map(
-                    ([date, tasksOnDate]) => (
-                      <div key={date}>
+                    ([date, tasksOnDate], dateIndex) => (
+                      <div key={`${uuidv5(date, NAMESPACE)}-${dateIndex}`}>
+                        {" "}
                         <section className="text-white font-semibold mb-2 font-mono p-2">
                           {date}
                         </section>
-                        <ul key={`${date}-${status}`}>
+                        <ul
+                          key={`${uuidv5(
+                            `${date}-tasks`,
+                            NAMESPACE
+                          )}-${dateIndex}`}
+                        >
+                          {" "}
                           {tasksOnDate.map(
-                            ({ id, title, description, createdAt }) => (
+                            (
+                              { id, title, description, createdAt },
+                              taskIndex
+                            ) => (
                               <BlogComponent
+                                key={`${uuidv5(id, NAMESPACE)}-${taskIndex}`}
                                 id={id}
                                 title={title}
                                 description={description}
