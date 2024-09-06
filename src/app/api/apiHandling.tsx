@@ -21,14 +21,18 @@ export default function ApiHandling() {
     ? `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?status=${noteStatus}&offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`
     : `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`;
 
-  const { data, error, isLoading } = useSWR<ApiResponseSchema>(API, fetcher);
+  const { data, error, isLoading } = useSWR<ApiResponseSchema>(API, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   if (isLoading) {
-    return <div>Loading... 📢</div>;
+    return (
+      <div className="text-yellow-50 font-mono font-thin">Loading... 📢</div>
+    );
   }
 
   if (!data || data === undefined || data == null) {
