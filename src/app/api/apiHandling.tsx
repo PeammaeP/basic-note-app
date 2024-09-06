@@ -11,12 +11,12 @@ const fetcher = (url: string): Promise<ApiResponseSchema> =>
 export default function ApiHandling() {
   const searchParams = useSearchParams();
 
+  // Parse query parameters and handle defaults
   const noteStatus = searchParams.get("status") || "";
-  const offsetNumber = searchParams.get("offset") || 0;
-  const limitNumber = searchParams.get("limit") || 10;
+  const offsetNumber = Number(searchParams.get("offset")) || 0;
+  const limitNumber = Number(searchParams.get("limit")) || 10;
   const sortingByCondition = searchParams.get("sortBy") || "createdAt";
-  const isAscending = searchParams.get("isAsc") || true;
-
+  const isAscending = searchParams.get("isAsc") === "true"; // Handle boolean conversion
   const API = noteStatus
     ? `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?status=${noteStatus}&offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`
     : `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?offset=${offsetNumber}&limit=${limitNumber}&sortBy=${sortingByCondition}&isAsc=${isAscending}`;
@@ -26,7 +26,11 @@ export default function ApiHandling() {
   });
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="text-red-500 font-mono font-bold">
+        Error: {error.message}
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -35,9 +39,12 @@ export default function ApiHandling() {
     );
   }
 
-  if (!data || data === undefined || data == null) {
-    console.log("Data is undefined");
-    return <div>Error To Fetch Data, No Data</div>;
+  if (!data || !data.tasks) {
+    return (
+      <div className="text-red-500 font-mono font-bold">
+        Error: No Data Available
+      </div>
+    );
   }
 
   return (

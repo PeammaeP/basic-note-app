@@ -1,5 +1,6 @@
 import "tailwindcss/tailwind.css";
 import ApiHandling from "./api/apiHandling";
+import { Suspense } from "react";
 
 export default function Home() {
   return (
@@ -8,7 +9,9 @@ export default function Home() {
         Notes App ✏️
       </header>
       <section className="text-3xl text-yellow-50 font-semibold">
-        <ApiHandling />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ApiHandling />
+        </Suspense>
       </section>
     </main>
   );
