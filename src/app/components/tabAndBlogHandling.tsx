@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Task from "../schema/taskSchema.dto";
 import ApiResponseSchema from "../schema/apiResponse.dto";
@@ -13,9 +13,9 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
   totalPages,
 }) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [taskList, setTaskList] = useState<Task[]>(tasks); // display all task
-  const [currentOffset, setCurrentOffset] = useState(0); // Tracks current offset
-  const [loading, setLoading] = useState(false); // loading State
+  const [taskList, setTaskList] = useState<Task[]>(tasks);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [loading, setLoading] = useState(false);
   const statuses = ["TODO", "DOING", "DONE"];
 
   const currentPageRef = useRef(pageNumber);
@@ -49,35 +49,22 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
     const API = `https://todo-list-api-mfchjooefq-as.a.run.app/todo-list?status=${statuses[selectedTab]}&offset=${nextOffset}&limit=10&sortBy=createdAt&isAsc=true`;
 
     try {
-      const response = await fetch(API).then((res) => res.json());
-
-      if (
-        !(currentOffset > totalPages) &&
-        response.tasks &&
-        response.tasks.length > 0
-      ) {
-        console.log(response.tasks);
-        setTaskList((prevTask) => [...prevTask, ...response.tasks]);
+      const response = await fetch(API);
+      const data = await response.json();
+      if (data.tasks && data.tasks.length > 0) {
+        setTaskList((prevTask) => [...prevTask, ...data.tasks]);
         setCurrentOffset(nextOffset);
       }
     } catch (error) {
-      return (
-        <div className="text-red-400 font-mono font-bold">
-          {" "}
-          Can't Fetch API !
-        </div>
-      );
+      console.error("Can't Fetch API!", error);
     } finally {
       setLoading(false);
     }
-  }, [loading, currentOffset, selectedTab, totalPages]);
+  }, [loading, currentOffset, selectedTab, statuses, totalPages]);
 
   const handleTabChange = async (index: number) => {
-    // Update selected tab
     setSelectedTab(index);
-
     setCurrentOffset(0);
-
     fetchTasksForTab(statuses[index]);
   };
 
@@ -91,18 +78,15 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
     }
   }, [loading, LoadMoreTasks, totalPages]);
 
-  // Add scroll event listener
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  // Filter tasks based on selected tab's status (TODO, DOING, DONE)
   const filteredTasks = (status: string) => {
     return taskList.filter((task) => task.status === status);
   };
 
-  // Group tasks by created date
   const groupTasksByDate = (filteredTasks: Task[]) => {
     return filteredTasks.reduce((groups, task) => {
       const date = format(task.createdAt, "MMMM dd, yyyy");
@@ -140,7 +124,6 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
                   Object.entries(groupTasksByDate(filteredTasks(status))).map(
                     ([date, tasksOnDate], dateIndex) => (
                       <div key={`${uuidv5(date, NAMESPACE)}-${dateIndex}`}>
-                        {" "}
                         <section className="text-white font-semibold mb-2 font-mono p-2">
                           {date}
                         </section>
@@ -150,7 +133,6 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
                             NAMESPACE
                           )}-${dateIndex}`}
                         >
-                          {" "}
                           {tasksOnDate.map(
                             (
                               { id, title, description, createdAt },
@@ -175,7 +157,7 @@ const TabStatusAndBlog: React.FC<ApiResponseSchema> = ({
           </TabPanels>
         </TabGroup>
         {loading && (
-          <p className="font-thin font-mono p-3">Loading more tasks... </p>
+          <p className="font-thin font-mono p-3">Loading more tasks...</p>
         )}
         {currentPageRef.current > totalPages && (
           <p className="font-bold text-red-300">No more tasks to load. 😱</p>
